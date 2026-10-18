@@ -1,0 +1,13 @@
+{
+  "country": "ua",
+  "languages": ["uk", "ru", "en"],
+  "apps": [
+    {"name": "monobank", "id": "com.ftband.mono", "category": "bank"},
+    {"name": "privat24", "id": "ua.privatbank.ap24", "category": "bank"},
+    {"name": "nova_poshta", "id": "ua.novaposhtaa", "category": "delivery"},
+    {"name": "rozetka", "id": "ua.com.rozetka.shop", "category": "marketplace"},
+    {"name": "olx", "id": "ua.slando", "category": "marketplace"},
+    {"name": "glovo", "id": "com.glovo", "category": "food_delivery"},
+    {"name": "bolt", "id": "ee.mtakso.client", "category": "taxi"}
+  ]
+}

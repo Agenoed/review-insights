@@ -3,3 +3,6 @@ pandas
 matplotlib
 langdetect
 ipykernel
+scikit-learn
+lingua-language-detector
+openpyxl

@@ -6,3 +6,4 @@ ipykernel
 scikit-learn
 lingua-language-detector
 openpyxl
+streamlit

@@ -19,5 +19,9 @@ CSV зберігається в data/raw (папка в .gitignore).
 
 - `src/data/collect_google_play.py` – збір відгуків, список застосунків у `configs/apps.json`
 - `notebooks/01_eda.ipynb` – перший огляд даних
+- `src/preprocessing/prepare.py` – обробка: очищення, визначення мови, розбиття на train/val/test
+- `src/evaluation/checks.py` – перевірка зірок і детекторів мови на ручній розмітці
+- `src/sentiment/baseline.py` – бейзлайн TF-IDF + SVM, метрики в `reports/metrics`
+- `src/dashboard/app.py` – дашборд, запуск: `python -m streamlit run src/dashboard/app.py`
 
-Далі буде попередня обробка, бейзлайн TF-IDF + SVM і порівняння з XLM-RoBERTa.
+Далі: трансформери (XLM-RoBERTa) і тематичне моделювання скарг.

@@ -15,11 +15,9 @@ detector = LanguageDetectorBuilder.from_languages(*LINGUA_CODES).build()
 def lang_by_letters(text):
     has_ua = any(ch in UA_LETTERS for ch in text)
     has_ru = any(ch in RU_LETTERS for ch in text)
-    if has_ua and has_ru:
-        return "mixed"
-    if has_ua:
+    if has_ua and not has_ru:
         return "uk"
-    if has_ru:
+    if has_ru and not has_ua:
         return "ru"
     return None
 

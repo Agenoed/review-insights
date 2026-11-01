@@ -44,21 +44,17 @@ def check_stars(gold, reviews):
 
 
 def check_languages(gold):
-    df = gold[gold["lang"].isin(["uk", "ru", "en", "mixed"])]
-    no_mixed = df["lang"] != "mixed"
+    df = gold[gold["lang"].isin(["uk", "ru", "en"])]
     detectors = {
         "langdetect": langdetect_only,
         "lingua": lingua_only,
         "letters + langdetect": letters_langdetect,
         "letters + lingua": detect_lang,
     }
-    print(f"Language detection accuracy (n={len(df)}, without mixed n={no_mixed.sum()})")
-    print(f"{'detector':<22}{'all':>8}{'no mixed':>10}")
+    print(f"Language detection accuracy (n={len(df)})")
     for name, func in detectors.items():
         pred = df["text"].map(func)
-        acc_all = accuracy_score(df["lang"], pred)
-        acc_no_mixed = accuracy_score(df.loc[no_mixed, "lang"], pred[no_mixed])
-        print(f"{name:<22}{acc_all:>8.3f}{acc_no_mixed:>10.3f}")
+        print(f"{name:<22}{accuracy_score(df['lang'], pred):.3f}")
 
 
 def main():

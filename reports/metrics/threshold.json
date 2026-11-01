@@ -1,0 +1,25 @@
+{
+  "model": "tfidf_words_chars + LogisticRegression (neg/pos) + threshold",
+  "train_size": 30793,
+  "train_time_s": 10.5,
+  "threshold": 0.73,
+  "dev_n": 301,
+  "test_n": 301,
+  "threshold_model": {
+    "macro_f1": 0.719,
+    "f1_per_class": {
+      "negative": 0.868,
+      "neutral": 0.353,
+      "positive": 0.935
+    }
+  },
+  "baseline_svm": {
+    "macro_f1": 0.619,
+    "f1_per_class": {
+      "negative": 0.895,
+      "neutral": 0.069,
+      "positive": 0.893
+    }
+  },
+  "inference_s_per_1000": 0.2391
+}

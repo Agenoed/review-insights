@@ -60,7 +60,7 @@ def evaluate(name, model, texts, labels):
 
 def f1_by_lang(df, pred):
     scores = {}
-    for lang in ["uk", "ru", "en", "mixed"]:
+    for lang in ["uk", "ru", "en"]:
         mask = (df["lang"] == lang).to_numpy()
         if mask.sum() > 0:
             scores[lang] = round(f1_score(df["sentiment"][mask], pred[mask], average="macro"), 3)

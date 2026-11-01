@@ -42,7 +42,7 @@ with st.sidebar:
     st.header("Фільтри")
     all_apps = sorted(df["app"].unique())
     apps = st.multiselect("Застосунки", all_apps, default=all_apps)
-    langs = st.multiselect("Мова", ["uk", "ru", "en", "mixed"], default=["uk", "ru", "en", "mixed"])
+    langs = st.multiselect("Мова", ["uk", "ru", "en"], default=["uk", "ru", "en"])
     first_day = df["at"].min().date()
     last_day = df["at"].max().date()
     period = st.date_input(

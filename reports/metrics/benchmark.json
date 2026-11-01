@@ -1,0 +1,7 @@
+{
+  "clean_text": 0.0078,
+  "detect_lang": 0.0401,
+  "baseline_predict": 0.2048,
+  "threshold_predict": 0.2058,
+  "n_reviews": 40786
+}

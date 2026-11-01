@@ -1,7 +1,7 @@
 {
   "model": "tfidf_words_chars + LinearSVC",
   "train_size": 32628,
-  "train_time_s": 12.9,
+  "train_time_s": 14.7,
   "val_stars": {
     "n": 4079,
     "macro_f1": 0.636,
@@ -12,7 +12,7 @@
       "neutral": 0.146,
       "positive": 0.91
     },
-    "inference_s_per_1000": 0.2083,
+    "inference_s_per_1000": 0.2288,
     "macro_f1_by_lang": {
       "uk": 0.645,
       "ru": 0.617,
@@ -21,14 +21,14 @@
   },
   "gold_manual": {
     "n": 602,
-    "macro_f1": 0.63,
-    "precision": 0.652,
-    "recall": 0.636,
+    "macro_f1": 0.64,
+    "precision": 0.661,
+    "recall": 0.642,
     "f1_per_class": {
-      "negative": 0.889,
-      "neutral": 0.113,
-      "positive": 0.887
+      "negative": 0.899,
+      "neutral": 0.127,
+      "positive": 0.892
     },
-    "inference_s_per_1000": 0.2016
+    "inference_s_per_1000": 0.2204
   }
 }

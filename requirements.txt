@@ -7,3 +7,4 @@ scikit-learn
 lingua-language-detector
 openpyxl
 streamlit
+pytest

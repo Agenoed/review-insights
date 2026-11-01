@@ -23,5 +23,8 @@ CSV зберігається в data/raw (папка в .gitignore).
 - `src/evaluation/checks.py` – перевірка зірок і детекторів мови на ручній розмітці
 - `src/sentiment/baseline.py` – бейзлайн TF-IDF + SVM, метрики в `reports/metrics`
 - `src/dashboard/app.py` – дашборд, запуск: `python -m streamlit run src/dashboard/app.py`
+- `src/sentiment/threshold.py` – нейтральний клас через поріг упевненості
+- `src/evaluation/benchmark.py` – замір швидкодії
+- `tests/` – автотести, запуск: `pytest`
 
 Далі: трансформери (XLM-RoBERTa) і тематичне моделювання скарг.

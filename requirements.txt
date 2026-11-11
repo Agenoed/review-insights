@@ -8,3 +8,8 @@ lingua-language-detector
 openpyxl
 streamlit
 pytest
+openai
+python-dotenv
+transformers
+sentencepiece
+protobuf

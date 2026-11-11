@@ -1,0 +1,120 @@
+{
+  "labels": {
+    "stars, all train": {
+      "macro_f1": 0.663,
+      "accuracy": 0.85,
+      "f1_per_class": {
+        "negative": 0.877,
+        "neutral": 0.195,
+        "positive": 0.918
+      }
+    },
+    "stars, same 5k reviews": {
+      "macro_f1": 0.631,
+      "accuracy": 0.844,
+      "f1_per_class": {
+        "negative": 0.882,
+        "neutral": 0.121,
+        "positive": 0.89
+      }
+    },
+    "LLM labels, 5k": {
+      "macro_f1": 0.763,
+      "accuracy": 0.894,
+      "f1_per_class": {
+        "negative": 0.908,
+        "neutral": 0.444,
+        "positive": 0.937
+      }
+    },
+    "LLM labels + synthetic": {
+      "macro_f1": 0.802,
+      "accuracy": 0.897,
+      "f1_per_class": {
+        "negative": 0.904,
+        "neutral": 0.564,
+        "positive": 0.937
+      }
+    },
+    "LLM labels + synthetic + threshold": {
+      "macro_f1": 0.802,
+      "accuracy": 0.897,
+      "f1_per_class": {
+        "negative": 0.904,
+        "neutral": 0.564,
+        "positive": 0.937
+      },
+      "threshold": 0.35
+    },
+    "reference: SVM on stars": {
+      "macro_f1": 0.661,
+      "accuracy": 0.864,
+      "f1_per_class": {
+        "negative": 0.896,
+        "neutral": 0.171,
+        "positive": 0.916
+      }
+    },
+    "reference: stars + threshold": {
+      "macro_f1": 0.695,
+      "accuracy": 0.807,
+      "f1_per_class": {
+        "negative": 0.846,
+        "neutral": 0.317,
+        "positive": 0.921
+      }
+    }
+  },
+  "categories": {
+    "bank": {
+      "n_test": 505,
+      "seen": 0.811,
+      "unseen": 0.779
+    },
+    "delivery": {
+      "n_test": 243,
+      "seen": 0.756,
+      "unseen": 0.725
+    },
+    "food_delivery": {
+      "n_test": 321,
+      "seen": 0.698,
+      "unseen": 0.61
+    },
+    "government": {
+      "n_test": 119,
+      "seen": 0.699,
+      "unseen": 0.708
+    },
+    "health": {
+      "n_test": 117,
+      "seen": 0.826,
+      "unseen": 0.826
+    },
+    "marketplace": {
+      "n_test": 533,
+      "seen": 0.789,
+      "unseen": 0.782
+    },
+    "retail": {
+      "n_test": 103,
+      "seen": 0.71,
+      "unseen": 0.71
+    },
+    "taxi": {
+      "n_test": 344,
+      "seen": 0.692,
+      "unseen": 0.682
+    },
+    "telecom": {
+      "n_test": 127,
+      "seen": 0.844,
+      "unseen": 0.844
+    },
+    "transport": {
+      "n_test": 91,
+      "seen": 0.844,
+      "unseen": 0.802
+    }
+  }
+}

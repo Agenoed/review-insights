@@ -43,3 +43,21 @@ def test_labeling_sample_hides_stars_and_language():
     assert list(sample.columns) == ["reviewId", "text", "sentiment", "lang"]
     assert (sample["lang"] == "").all()
     assert set(sample["reviewId"]) <= set(df.loc[df["split"] == "test", "reviewId"])
+
+
+def test_load_raw_merges_files_and_fills_country(tmp_path, monkeypatch):
+    from src.preprocessing import prepare
+
+    pd.DataFrame({
+        "reviewId": ["a", "b"], "content": ["x", "y"], "score": [1, 5], "at": ["2026-10-01", "2026-10-02"],
+    }).to_csv(tmp_path / "google_play_apps_20261025.csv", index=False)
+    pd.DataFrame({
+        "reviewId": ["b", "c"], "content": ["y", "z"], "score": [5, 3], "at": ["2026-10-02", "2026-11-01"],
+        "country": ["pl", "es"],
+    }).to_csv(tmp_path / "google_play_apps_extra_20261111.csv", index=False)
+    monkeypatch.setattr(prepare, "RAW_DIR", tmp_path)
+
+    df = prepare.load_raw()
+
+    assert sorted(df["reviewId"]) == ["a", "b", "c"]
+    assert df.set_index("reviewId")["country"].to_dict() == {"a": "ua", "b": "pl", "c": "es"}

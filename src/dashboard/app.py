@@ -13,10 +13,14 @@ import streamlit as st
 
 from src.preprocessing.language import detect_lang
 from src.preprocessing.prepare import PROCESSED_PATH
-from src.sentiment.baseline import LABELS, METRICS_PATH, MODEL_PATH
+from src.sentiment.baseline import LABELS
+from src.sentiment.experiments import METRICS_DIR, MODEL_PATH
+from src.sentiment.threshold import apply_threshold
 
 NAMES = {"negative": "негатив", "neutral": "нейтрально", "positive": "позитив"}
 COLORS = ["#d9534f", "#adb5bd", "#5cb85c"]
+LANGS = ["uk", "ru", "en", "pl", "es"]
+TABLE_COLUMNS = ["at", "app", "lang", "score", "confidence", "text"]
 
 st.set_page_config(page_title="Review Insights", layout="wide")
 
@@ -26,23 +30,31 @@ def load_model():
     return joblib.load(MODEL_PATH)
 
 
+def predict(texts):
+    saved = load_model()
+    model = saved["model"]
+    proba = model.predict_proba(texts)
+    return apply_threshold(proba, list(model.classes_), saved["threshold"]), proba.max(axis=1)
+
+
 @st.cache_data
 def load_reviews():
     df = pd.read_csv(PROCESSED_PATH, parse_dates=["at"], keep_default_na=False)
-    df["pred"] = load_model().predict(df["text"])
+    df["pred"], df["confidence"] = predict(df["text"])
+    df["confidence"] = df["confidence"].round(2)
     return df
 
 
 df = load_reviews()
 
 st.title("Review Insights")
-st.caption("Відгуки з Google Play, тональність визначає бейзлайн TF-IDF + SVM")
+st.caption("Відгуки з Google Play. Тональність визначає TF-IDF + логістична регресія, навчена на LLM-мітках і синтетичних нейтральних відгуках")
 
 with st.sidebar:
     st.header("Фільтри")
     all_apps = sorted(df["app"].unique())
     apps = st.multiselect("Застосунки", all_apps, default=all_apps)
-    langs = st.multiselect("Мова", ["uk", "ru", "en"], default=["uk", "ru", "en"])
+    langs = st.multiselect("Мова", LANGS, default=LANGS)
     first_day = df["at"].min().date()
     last_day = df["at"].max().date()
     period = st.date_input(
@@ -64,10 +76,11 @@ if view.empty:
     st.warning("Немає відгуків під ці фільтри")
     st.stop()
 
-col1, col2, col3 = st.columns(3)
+col1, col2, col3, col4 = st.columns(4)
 col1.metric("Відгуків", f"{len(view):,}".replace(",", " "))
 col2.metric("Негативних", f"{(view['pred'] == 'negative').mean():.0%}")
 col3.metric("Позитивних", f"{(view['pred'] == 'positive').mean():.0%}")
+col4.metric("Нейтральних", f"{(view['pred'] == 'neutral').mean():.0%}")
 
 st.subheader("Тональність по застосунках")
 by_app = pd.crosstab(view["app"], view["pred"], normalize="index")
@@ -86,17 +99,29 @@ st.line_chart(weekly["mean"].rename("негатив"))
 st.caption("Тижні, де менше 10 відгуків, не показані")
 
 st.subheader("Останні негативні відгуки")
-latest = view[view["pred"] == "negative"].sort_values("at", ascending=False).head(20)
-st.dataframe(latest[["at", "app", "lang", "score", "text"]], hide_index=True)
+negative = view[view["pred"] == "negative"].sort_values("at", ascending=False).head(20)
+st.dataframe(negative[TABLE_COLUMNS], hide_index=True)
+
+st.subheader("Питання і побажання")
+st.caption("Нейтральні відгуки: питання, побажання, змішані оцінки. Тут зручно шукати ідеї для продукту")
+neutral = view[view["pred"] == "neutral"].sort_values("at", ascending=False).head(20)
+st.dataframe(neutral[TABLE_COLUMNS], hide_index=True)
 
 st.subheader("Перевірити відгук")
 text = st.text_area("Текст відгуку")
 if st.button("Визначити") and text.strip():
-    sentiment = load_model().predict([text])[0]
-    st.write(f"Тональність: **{NAMES[sentiment]}**, мова: **{detect_lang(text)}**")
+    pred, confidence = predict([text])
+    st.write(
+        f"Тональність: **{NAMES[pred[0]]}** (впевненість {confidence[0]:.2f}), "
+        f"мова: **{detect_lang(text)}**"
+    )
 
 with st.expander("Якість моделі"):
-    metrics = json.loads(METRICS_PATH.read_text(encoding="utf-8"))
-    gold = metrics["gold_manual"]
-    st.write(f"На ручній розмітці (n={gold['n']}) macro-F1 = {gold['macro_f1']}")
-    st.json(metrics)
+    results = json.loads((METRICS_DIR / "experiments.json").read_text(encoding="utf-8"))["labels"]
+    best = results["LLM labels + synthetic + threshold"]
+    st.write(
+        f"На тестовій половині ручної розмітки macro-F1 = {best['macro_f1']}, "
+        f"F1 нейтральних = {best['f1_per_class']['neutral']}. "
+        f"Для порівняння, SVM на зірках: {results['reference: SVM on stars']['macro_f1']}"
+    )
+    st.json(results)

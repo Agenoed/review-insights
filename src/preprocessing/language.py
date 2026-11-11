@@ -7,6 +7,7 @@ LINGUA_CODES = {
     Language.RUSSIAN: "ru",
     Language.ENGLISH: "en",
     Language.POLISH: "pl",
+    Language.SPANISH: "es",
 }
 
 detector = LanguageDetectorBuilder.from_languages(*LINGUA_CODES).build()

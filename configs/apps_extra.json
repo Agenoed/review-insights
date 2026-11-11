@@ -1,0 +1,15 @@
+{
+  "country": "ua",
+  "languages": ["uk", "ru", "en"],
+  "apps": [
+    {"name": "diia", "id": "ua.gov.diia.app", "category": "government"},
+    {"name": "kyivstar", "id": "com.kyivstar.mykyivstar", "category": "telecom"},
+    {"name": "uz", "id": "ua.gov.uz", "category": "transport"},
+    {"name": "silpo", "id": "ua.silpo.android", "category": "retail"},
+    {"name": "helsi", "id": "helsi.me", "category": "health"},
+    {"name": "bolt", "id": "ee.mtakso.client", "category": "taxi",
+     "markets": [{"country": "pl", "languages": ["pl"]}, {"country": "es", "languages": ["es"]}]},
+    {"name": "glovo", "id": "com.glovo", "category": "food_delivery",
+     "markets": [{"country": "pl", "languages": ["pl"]}, {"country": "es", "languages": ["es"]}]}
+  ]
+}

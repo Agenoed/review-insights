@@ -1,0 +1,15 @@
+{
+  "provider": "ollama",
+  "model": "gemma3:12b",
+  "n": 602,
+  "llm_sentiment": {
+    "accuracy": 0.925,
+    "kappa": 0.871,
+    "macro_f1": 0.84
+  },
+  "stars": {
+    "accuracy": 0.822,
+    "kappa": 0.686,
+    "macro_f1": 0.629
+  }
+}

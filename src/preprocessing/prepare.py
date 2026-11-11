@@ -26,6 +26,9 @@ def load_raw():
     files = sorted(RAW_DIR.glob("google_play_*.csv"))
     df = pd.concat([pd.read_csv(f, parse_dates=["at"]) for f in files], ignore_index=True)
     df = df.drop_duplicates("reviewId", keep="last").reset_index(drop=True)
+    if "country" not in df.columns:
+        df["country"] = "ua"
+    df["country"] = df["country"].fillna("ua")
     print(f"{len(files)} raw files, {len(df)} unique reviews")
     return df
 

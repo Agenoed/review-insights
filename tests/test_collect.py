@@ -35,3 +35,25 @@ def test_collect_drops_duplicates_empty_and_user_names(monkeypatch):
 
     assert df["reviewId"].tolist() == ["same"]
     assert "userName" not in df.columns
+
+
+def test_collect_uses_app_markets(monkeypatch):
+    calls = []
+
+    def fake_fetch(app_id, lang, country, limit, pause=1.0):
+        calls.append((country, lang))
+        return [{"reviewId": f"{country}-{lang}", "content": "ok", "score": 5}]
+
+    monkeypatch.setattr(collect_module, "fetch_reviews", fake_fetch)
+    config = {
+        "country": "ua",
+        "languages": ["uk", "ru"],
+        "apps": [
+            {"name": "a", "id": "a", "category": "bank"},
+            {"name": "b", "id": "b", "category": "taxi", "markets": [{"country": "pl", "languages": ["pl"]}]},
+        ],
+    }
+    df = collect_module.collect(config, per_lang=10, pause=0)
+
+    assert calls == [("ua", "uk"), ("ua", "ru"), ("pl", "pl")]
+    assert df.loc[df["app"] == "b", "country"].tolist() == ["pl"]

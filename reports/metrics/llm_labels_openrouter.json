@@ -1,0 +1,15 @@
+{
+  "provider": "openrouter",
+  "model": "google/gemma-4-26b-a4b-it",
+  "n": 602,
+  "llm_sentiment": {
+    "accuracy": 0.957,
+    "kappa": 0.924,
+    "macro_f1": 0.896
+  },
+  "stars": {
+    "accuracy": 0.822,
+    "kappa": 0.686,
+    "macro_f1": 0.629
+  }
+}

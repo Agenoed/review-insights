@@ -1,0 +1,36 @@
+{
+  "n_complaints": 26517,
+  "min_chars": 30,
+  "embedding_model": "sentence-transformers/paraphrase-multilingual-mpnet-base-v2",
+  "embedding_time_s": 46.9,
+  "k": 57,
+  "methods": {
+    "bertopic": {
+      "n_topics": 57,
+      "noise_share": 0.42,
+      "npmi": -0.172,
+      "word_coherence": 0.581,
+      "diversity": 0.765,
+      "silhouette": 0.051,
+      "time_s": 61.7
+    },
+    "kmeans": {
+      "n_topics": 57,
+      "noise_share": 0.0,
+      "npmi": -0.112,
+      "word_coherence": 0.589,
+      "diversity": 0.677,
+      "silhouette": 0.037,
+      "time_s": 58.3
+    },
+    "lda": {
+      "n_topics": 57,
+      "noise_share": 0.0,
+      "npmi": -0.244,
+      "word_coherence": 0.515,
+      "diversity": 0.981,
+      "silhouette": -0.078,
+      "time_s": 70.1
+    }
+  }
+}

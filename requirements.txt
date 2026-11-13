@@ -13,3 +13,6 @@ python-dotenv
 transformers
 sentencepiece
 protobuf
+sentence-transformers
+umap-learn
+stop-words

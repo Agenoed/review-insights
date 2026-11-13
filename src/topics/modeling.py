@@ -1,3 +1,4 @@
+import re
 from functools import lru_cache
 
 import numpy as np
@@ -10,7 +11,8 @@ from stop_words import get_stop_words
 
 EMBEDDING_MODEL = "sentence-transformers/paraphrase-multilingual-mpnet-base-v2"
 STOP_LANGS = ["ukrainian", "russian", "english", "polish", "spanish"]
-TOKEN_PATTERN = r"(?u)\b[^\W\d_]{3,}\b"
+TOKEN_PATTERN = r"(?u)\b(?:не_|нет_|not_|nie_|no_)?[^\W\d_]{3,}\b"
+NEGATION_RE = re.compile(r"\b(не|нет|not|nie|no)\s+(?=[^\W\d_]{3,})")
 DOMAIN_STOP = [
     "додаток", "додатку", "застосунок", "застосунку", "програма", "програму",
     "приложение", "приложения", "приложении", "программа", "программу",
@@ -29,8 +31,15 @@ def stop_words():
     return sorted(words)
 
 
+def preprocess(text):
+    text = re.sub(r"['’ʼ`]", "", text.lower())
+    return NEGATION_RE.sub(lambda m: m.group(1) + "_", text)
+
+
 def make_vectorizer(min_df=5):
-    return CountVectorizer(token_pattern=TOKEN_PATTERN, stop_words=stop_words(), min_df=min_df, max_df=0.5)
+    return CountVectorizer(
+        preprocessor=preprocess, token_pattern=TOKEN_PATTERN, stop_words=stop_words(), min_df=min_df, max_df=0.5
+    )
 
 
 @lru_cache(maxsize=1)
@@ -59,7 +68,18 @@ def cluster_kmeans(reduced, k, seed=42):
     return KMeans(n_clusters=k, n_init=10, random_state=seed).fit_predict(reduced)
 
 
-def ctfidf_words(texts, labels, top_n=10):
+def distinct_words(candidates, top_n=10, max_similarity=0.8):
+    vectors = embed([w.replace("_", " ") for w in candidates], show_progress=False)
+    chosen = []
+    for i in range(len(candidates)):
+        if all(vectors[i] @ vectors[j] < max_similarity for j in chosen):
+            chosen.append(i)
+        if len(chosen) == top_n:
+            break
+    return [candidates[i] for i in chosen]
+
+
+def ctfidf_words(texts, labels, top_n=10, candidates=30):
     df = pd.DataFrame({"text": list(texts), "label": labels})
     docs = df[df["label"] != -1].groupby("label")["text"].apply(" ".join)
     vectorizer = make_vectorizer().fit(texts)
@@ -68,16 +88,22 @@ def ctfidf_words(texts, labels, top_n=10):
     idf = np.log(1 + counts.sum() / len(docs) / counts.sum(axis=0).clip(min=1))
     scores = tf * idf
     vocab = vectorizer.get_feature_names_out()
-    return {int(label): [vocab[i] for i in scores[row].argsort()[::-1][:top_n]] for row, label in enumerate(docs.index)}
+    return {
+        int(label): distinct_words([vocab[i] for i in scores[row].argsort()[::-1][:candidates]], top_n)
+        for row, label in enumerate(docs.index)
+    }
 
 
-def lda_topics(texts, k, top_n=10, seed=42):
+def lda_topics(texts, k, top_n=10, candidates=30, seed=42):
     vectorizer = make_vectorizer()
     counts = vectorizer.fit_transform(texts)
     lda = LatentDirichletAllocation(n_components=k, learning_method="online", random_state=seed)
     labels = lda.fit_transform(counts).argmax(axis=1)
     vocab = vectorizer.get_feature_names_out()
-    words = {t: [vocab[i] for i in lda.components_[t].argsort()[::-1][:top_n]] for t in range(k)}
+    words = {
+        t: distinct_words([vocab[i] for i in lda.components_[t].argsort()[::-1][:candidates]], top_n)
+        for t in range(k)
+    }
     return labels, words
 
 
@@ -114,7 +140,7 @@ def word_coherence(topic_words, top_n=10):
         words = words[:top_n]
         if len(words) < 2:
             continue
-        vectors = embed(words, show_progress=False)
+        vectors = embed([w.replace("_", " ") for w in words], show_progress=False)
         sims = vectors @ vectors.T
         scores.append((sims.sum() - len(words)) / (len(words) * (len(words) - 1)))
     return float(np.mean(scores)) if scores else float("nan")

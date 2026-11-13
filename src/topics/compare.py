@@ -12,6 +12,7 @@ import time
 from pathlib import Path
 
 import joblib
+import numpy as np
 import pandas as pd
 
 from src.preprocessing.prepare import PROCESSED_PATH
@@ -46,17 +47,20 @@ def load_complaints():
     return complaints.reset_index(drop=True)
 
 
-def topics_table(df, labels, words, n_examples=3):
+def topics_table(df, labels, words, embeddings, n_examples=3):
     rows = []
     for label, top in words.items():
-        members = df[labels == label]
+        idx = np.where(labels == label)[0]
+        members = df.iloc[idx]
+        centroid = embeddings[idx].mean(axis=0)
+        closest = idx[np.argsort(embeddings[idx] @ centroid)[::-1][:n_examples]]
         rows.append({
             "topic": label,
-            "size": len(members),
-            "share": round(len(members) / len(df), 3),
-            "words": ", ".join(top),
+            "size": len(idx),
+            "share": round(len(idx) / len(df), 3),
+            "words": ", ".join(w.replace("_", " ") for w in top),
             "apps": ", ".join(members["app"].value_counts().head(3).index),
-            "examples": " | ".join(members["text"].head(n_examples).str.slice(0, 150)),
+            "examples": " | ".join(df.loc[closest, "text"].str.slice(0, 150)),
         })
     return pd.DataFrame(rows).sort_values("size", ascending=False)
 
@@ -95,19 +99,19 @@ def main():
     labels = cluster_hdbscan(reduced)
     words = ctfidf_words(texts, labels)
     results["bertopic"] = evaluate("BERTopic", texts, embeddings, labels, words, time.perf_counter() - start + reduce_time)
-    tables["bertopic"] = topics_table(complaints, labels, words)
+    tables["bertopic"] = topics_table(complaints, labels, words, embeddings)
     k = len(words)
 
     start = time.perf_counter()
     labels = cluster_kmeans(reduced, k)
     words = ctfidf_words(texts, labels)
     results["kmeans"] = evaluate("k-means", texts, embeddings, labels, words, time.perf_counter() - start + reduce_time)
-    tables["kmeans"] = topics_table(complaints, labels, words)
+    tables["kmeans"] = topics_table(complaints, labels, words, embeddings)
 
     start = time.perf_counter()
     labels, words = lda_topics(texts, k)
     results["lda"] = evaluate("LDA", texts, embeddings, labels, words, time.perf_counter() - start)
-    tables["lda"] = topics_table(complaints, labels, words)
+    tables["lda"] = topics_table(complaints, labels, words, embeddings)
 
     METRICS_PATH.parent.mkdir(parents=True, exist_ok=True)
     meta = {"n_complaints": len(texts), "min_chars": MIN_CHARS, "embedding_model": EMBEDDING_MODEL,

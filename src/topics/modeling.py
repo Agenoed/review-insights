@@ -60,8 +60,10 @@ def reduce(embeddings, n_components=5, seed=42):
     return umap.fit_transform(embeddings)
 
 
-def cluster_hdbscan(reduced, min_cluster_size=50, min_samples=10):
-    return HDBSCAN(min_cluster_size=min_cluster_size, min_samples=min_samples, copy=True).fit_predict(reduced)
+def cluster_hdbscan(reduced, min_cluster_size=50, min_samples=10, method="eom"):
+    return HDBSCAN(
+        min_cluster_size=min_cluster_size, min_samples=min_samples, cluster_selection_method=method, copy=True
+    ).fit_predict(reduced)
 
 
 def cluster_kmeans(reduced, k, seed=42):
@@ -79,10 +81,12 @@ def distinct_words(candidates, top_n=10, max_similarity=0.8):
     return [candidates[i] for i in chosen]
 
 
-def ctfidf_words(texts, labels, top_n=10, candidates=30):
+def ctfidf_words(texts, labels, top_n=10, candidates=30, min_df=5):
     df = pd.DataFrame({"text": list(texts), "label": labels})
     docs = df[df["label"] != -1].groupby("label")["text"].apply(" ".join)
-    vectorizer = make_vectorizer().fit(texts)
+    if docs.empty:
+        return {}
+    vectorizer = make_vectorizer(min_df).fit(texts)
     counts = vectorizer.transform(docs).toarray().astype(float)
     tf = counts / counts.sum(axis=1, keepdims=True).clip(min=1)
     idf = np.log(1 + counts.sum() / len(docs) / counts.sum(axis=0).clip(min=1))
@@ -158,3 +162,31 @@ def silhouette(embeddings, labels, sample_size=5000, seed=42):
         return float("nan")
     size = min(sample_size, int(mask.sum()))
     return float(silhouette_score(embeddings[mask], labels[mask], metric="cosine", sample_size=size, random_state=seed))
+
+
+def attach_outliers(embeddings, labels, threshold=0.5):
+    labels = np.asarray(labels).copy()
+    topics = [t for t in np.unique(labels) if t != -1]
+    noise = np.where(labels == -1)[0]
+    if not topics or len(noise) == 0:
+        return labels
+    centroids = np.stack([embeddings[labels == t].mean(axis=0) for t in topics])
+    centroids /= np.linalg.norm(centroids, axis=1, keepdims=True)
+    sims = embeddings[noise] @ centroids.T
+    best = sims.argmax(axis=1)
+    close = sims[np.arange(len(noise)), best] >= threshold
+    labels[noise[close]] = np.array(topics)[best[close]]
+    return labels
+
+
+def representative(embeddings, idx, n):
+    centroid = embeddings[idx].mean(axis=0)
+    return idx[np.argsort(embeddings[idx] @ centroid)[::-1][:n]]
+
+
+def shorten(text, limit=300):
+    text = " ".join(str(text).split())
+    if len(text) <= limit:
+        return text
+    cut = text[:limit].rsplit(" ", 1)[0]
+    return cut.rstrip(",.;:!?-") + "…"

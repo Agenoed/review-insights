@@ -115,7 +115,12 @@ def find_app_topics(df, app, days=None, n_examples=25):
         if has_trend:
             now = int((is_current & in_trend)[idx].sum())
             before = int((~is_current & in_trend)[idx].sum())
-            topic["trend"] = {"share": share(now, n_trend_current), "previous_share": share(before, n_trend_previous)}
+            topic["trend"] = {
+                "complaints": now,
+                "previous_complaints": before,
+                "share": share(now, n_trend_current),
+                "previous_share": share(before, n_trend_previous),
+            }
         topics.append(topic)
     topics.sort(key=lambda t: t["complaints"], reverse=True)
 
@@ -129,6 +134,12 @@ def find_app_topics(df, app, days=None, n_examples=25):
             "previous_complaints": n_trend_previous,
         }
 
+    items = [
+        {"id": row.reviewId, "at": row.at.date().isoformat(), "text": row.text,
+         "current": bool(current), "in_trend": bool(trend_flag), "topic": int(label)}
+        for row, current, trend_flag, label in zip(complaints.itertuples(), is_current, in_trend, labels)
+    ]
+
     return {
         "app": app,
         "period_days": days,
@@ -140,6 +151,7 @@ def find_app_topics(df, app, days=None, n_examples=25):
         "other_share": share(int(((labels == -1) & is_current).sum()), n_current),
         "trend": trend,
         "topics": topics,
+        "items": items,
     }
 
 

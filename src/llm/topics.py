@@ -57,13 +57,13 @@ Write only in Ukrainian; names of apps, banks, services and functions can stay a
 Return only JSON: {{"problems": [{{"title": "...", "description": "...", "groups": [1, 2]}}]}}"""
 
 MORE_PROMPT = """You analyze complaints from app store reviews of the app "{app}" for its product team.
-Problems already found:
+Titles of the problems already found:
 {problems}
-The user message contains complaints that did not fit any of these problems. They can be in different languages.
+The user message contains complaints that were not sorted into any of these problems. They can be in different languages.
 Write the new problems from these complaints, in Ukrainian:
 {rules}
 Rules:
-- Do not repeat or rephrase the problems that are already found
+- Do not repeat or rephrase the problems from the list. A problem counts as found only if its title is in the list, even if it is often mentioned together with one of them
 - Write a problem only if at least 3 of these complaints describe it. Skip complaints that are too general to tell, like "terrible app", and complaints without any problem
 - If there are no such problems, return an empty list
 Write only in Ukrainian; names of apps, banks, services and functions can stay as they are.
@@ -190,7 +190,7 @@ def discover_more(app, problems, items, provider):
     if len(left) < MIN_LEFT_FOR_MORE or len(problems) >= MAX_PROBLEMS:
         return []
     random.Random(42).shuffle(left)
-    listing = "\n".join(f"- {p['title']}. {p['description']}" for p in problems)
+    listing = "\n".join(f"- {p['title']}" for p in problems)
     system = MORE_PROMPT.format(app=app, problems=listing, rules=PROBLEM_RULES)
     user = "\n".join(f"- {shorten(i['text'])}" for i in left[:MAX_LEFT_EXAMPLES])
     answer = ask(system, user, provider, check=lambda a: good_problems(a, allow_empty=True)) or {}

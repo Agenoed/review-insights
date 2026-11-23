@@ -29,6 +29,7 @@ from src.topics.modeling import (
 
 ROOT = Path(__file__).resolve().parents[2]
 OUT_DIR = ROOT / "data" / "apps"
+ADDED_DIR = ROOT / "data" / "added"
 MIN_CHARS = 30
 MIN_COMPLAINTS = 150
 MIN_TOPICS = 4
@@ -38,7 +39,10 @@ GROUP = ["country", "request_lang"]
 def load_reviews():
     df = pd.read_csv(PROCESSED_PATH, parse_dates=["at"], keep_default_na=False)
     predictions = pd.read_csv(PREDICTIONS_PATH, keep_default_na=False)
-    return df.merge(predictions, on="reviewId")
+    frames = [df.merge(predictions, on="reviewId")]
+    for path in sorted(ADDED_DIR.glob("*.csv")):
+        frames.append(pd.read_csv(path, parse_dates=["at"], keep_default_na=False))
+    return pd.concat(frames, ignore_index=True)
 
 
 def is_complaint(df):

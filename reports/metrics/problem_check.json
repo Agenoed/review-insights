@@ -1,0 +1,289 @@
+{
+  "blind": {
+    "diia": {
+      "complaints": 40,
+      "precision": 0.468,
+      "recall": 0.917,
+      "f1": 0.62,
+      "exact_match": 0.5,
+      "no_problem_agreement": 0.75,
+      "errors": {
+        "same": 20,
+        "model_problem_where_none": 10,
+        "model_extra_problem": 8,
+        "model_other_problem": 2
+      },
+      "details_checked": 35,
+      "details_supported": 0.914,
+      "ci95": {
+        "precision": [
+          0.353,
+          0.595
+        ],
+        "recall": [
+          0.792,
+          1.0
+        ],
+        "f1": [
+          0.5,
+          0.732
+        ],
+        "details_supported": [
+          0.829,
+          1.0
+        ]
+      }
+    },
+    "glovo": {
+      "complaints": 40,
+      "precision": 0.615,
+      "recall": 0.755,
+      "f1": 0.678,
+      "exact_match": 0.275,
+      "no_problem_agreement": 0.875,
+      "errors": {
+        "model_extra_problem": 14,
+        "same": 11,
+        "model_missed_problem": 5,
+        "model_partly_other": 4,
+        "model_problem_where_none": 3,
+        "model_none": 2,
+        "model_other_problem": 1
+      },
+      "details_checked": 46,
+      "details_supported": 0.978,
+      "ci95": {
+        "precision": [
+          0.517,
+          0.717
+        ],
+        "recall": [
+          0.667,
+          0.854
+        ],
+        "f1": [
+          0.596,
+          0.75
+        ],
+        "details_supported": [
+          0.935,
+          1.0
+        ]
+      }
+    },
+    "monobank": {
+      "complaints": 40,
+      "precision": 0.486,
+      "recall": 0.85,
+      "f1": 0.618,
+      "exact_match": 0.65,
+      "no_problem_agreement": 0.775,
+      "errors": {
+        "same": 26,
+        "model_problem_where_none": 8,
+        "model_extra_problem": 3,
+        "model_other_problem": 2,
+        "model_none": 1
+      },
+      "details_checked": 34,
+      "details_supported": 0.824,
+      "ci95": {
+        "precision": [
+          0.324,
+          0.667
+        ],
+        "recall": [
+          0.68,
+          1.0
+        ],
+        "f1": [
+          0.448,
+          0.766
+        ],
+        "details_supported": [
+          0.676,
+          0.941
+        ]
+      }
+    },
+    "all": {
+      "complaints": 120,
+      "precision": 0.537,
+      "recall": 0.814,
+      "f1": 0.648,
+      "exact_match": 0.475,
+      "no_problem_agreement": 0.8,
+      "errors": {
+        "same": 57,
+        "model_extra_problem": 25,
+        "model_problem_where_none": 21,
+        "model_other_problem": 5,
+        "model_missed_problem": 5,
+        "model_partly_other": 4,
+        "model_none": 3
+      },
+      "details_checked": 115,
+      "details_supported": 0.913,
+      "ci95": {
+        "precision": [
+          0.463,
+          0.613
+        ],
+        "recall": [
+          0.745,
+          0.88
+        ],
+        "f1": [
+          0.58,
+          0.708
+        ],
+        "details_supported": [
+          0.861,
+          0.957
+        ]
+      }
+    }
+  },
+  "reviewed": {
+    "diia": {
+      "complaints": 40,
+      "precision": 0.915,
+      "recall": 0.935,
+      "f1": 0.925,
+      "exact_match": 0.9,
+      "no_problem_agreement": 1.0,
+      "errors": {
+        "same": 36,
+        "model_other_problem": 3,
+        "model_extra_problem": 1
+      },
+      "details_checked": 35,
+      "details_supported": 0.914,
+      "ci95": {
+        "precision": [
+          0.822,
+          0.981
+        ],
+        "recall": [
+          0.846,
+          1.0
+        ],
+        "f1": [
+          0.837,
+          0.989
+        ],
+        "details_supported": [
+          0.829,
+          1.0
+        ]
+      }
+    },
+    "glovo": {
+      "complaints": 40,
+      "precision": 0.954,
+      "recall": 0.939,
+      "f1": 0.947,
+      "exact_match": 0.825,
+      "no_problem_agreement": 0.95,
+      "errors": {
+        "same": 33,
+        "model_missed_problem": 3,
+        "model_extra_problem": 2,
+        "model_problem_where_none": 1,
+        "model_none": 1
+      },
+      "details_checked": 46,
+      "details_supported": 0.978,
+      "ci95": {
+        "precision": [
+          0.894,
+          1.0
+        ],
+        "recall": [
+          0.881,
+          0.986
+        ],
+        "f1": [
+          0.908,
+          0.979
+        ],
+        "details_supported": [
+          0.935,
+          1.0
+        ]
+      }
+    },
+    "monobank": {
+      "complaints": 40,
+      "precision": 0.714,
+      "recall": 0.893,
+      "f1": 0.794,
+      "exact_match": 0.725,
+      "no_problem_agreement": 0.825,
+      "errors": {
+        "same": 29,
+        "model_problem_where_none": 6,
+        "model_extra_problem": 2,
+        "model_other_problem": 1,
+        "model_none": 1,
+        "model_missed_problem": 1
+      },
+      "details_checked": 34,
+      "details_supported": 0.824,
+      "ci95": {
+        "precision": [
+          0.545,
+          0.857
+        ],
+        "recall": [
+          0.778,
+          1.0
+        ],
+        "f1": [
+          0.658,
+          0.885
+        ],
+        "details_supported": [
+          0.676,
+          0.941
+        ]
+      }
+    },
+    "all": {
+      "complaints": 120,
+      "precision": 0.884,
+      "recall": 0.929,
+      "f1": 0.906,
+      "exact_match": 0.817,
+      "no_problem_agreement": 0.925,
+      "errors": {
+        "same": 98,
+        "model_problem_where_none": 7,
+        "model_extra_problem": 5,
+        "model_other_problem": 4,
+        "model_missed_problem": 4,
+        "model_none": 2
+      },
+      "details_checked": 115,
+      "details_supported": 0.913,
+      "ci95": {
+        "precision": [
+          0.819,
+          0.935
+        ],
+        "recall": [
+          0.882,
+          0.967
+        ],
+        "f1": [
+          0.86,
+          0.943
+        ],
+        "details_supported": [
+          0.861,
+          0.957
+        ]
+      }
+    }
+  }
+}

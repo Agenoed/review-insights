@@ -322,11 +322,13 @@ def cluster_purity(items):
     return share(top, sum(map(len, groups.values())))
 
 
-def describe_app(app, days=None, provider=None, df=None):
+def describe_app(app, days=None, provider=None, df=None, make_groups=None):
     provider = get_provider(provider)
     result = find_app_topics(load_reviews() if df is None else df, app, days)
     items, all_clusters = result.pop("items"), result.pop("topics")
     clusters = [c for c in all_clusters if c["complaints"] >= MIN_TOPIC_COMPLAINTS][:MAX_TOPICS]
+    if make_groups:
+        clusters = make_groups(clusters, items)
 
     for item in items:
         item["problems"] = None

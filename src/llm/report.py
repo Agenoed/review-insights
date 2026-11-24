@@ -14,6 +14,7 @@ import argparse
 import json
 import re
 from concurrent.futures import ThreadPoolExecutor
+from datetime import date, timedelta
 
 from src.llm.client import get_model, get_provider
 from src.llm.topics import (
@@ -29,6 +30,7 @@ MIN_LINK_COMPLAINTS = 5
 MIN_LINK_SHARE = 0.25
 MAX_LINKS = 5
 MIN_INFORMATIVE_CHARS = 80
+COUNTRIES = {"ua": "Україна", "pl": "Польща", "es": "Іспанія", "mx": "Мексика", "us": "США", "gb": "Велика Британія"}
 MARKDOWN_CHARS = re.compile(r"([\\`*_#>|\[\]])")
 NUMBER_LIST = re.compile(r"\s*[\[(]\s*\d+(?:\s*,\s*\d+)*\s*[\])]")
 
@@ -53,6 +55,19 @@ TRANSLATE_PROMPT = """Translate every numbered app store review from the user me
 If a review is already in Ukrainian, return it unchanged. Keep the meaning and the tone, do not shorten and do not add anything. Keep names of apps, shops and services as they are.
 Return only JSON with every review number as a key: {"1": "...", "2": "..."}"""
 
+
+def markets_text(markets):
+    return "; ".join(f"{COUNTRIES.get(c, c.upper())} ({', '.join(langs)})" for c, langs in markets.items())
+
+
+def period_text(result):
+    text = f"останні {result['period_days']} днів, до {result['period_end']}"
+    first = result.get("first_day")
+    if first:
+        start = date.fromisoformat(result["period_end"]) - timedelta(days=result["period_days"])
+        if date.fromisoformat(first) - start > timedelta(days=7):
+            text += f" (відгуки є лише з {first})"
+    return text
 
 def complaints_word(n):
     if n % 10 == 1 and n % 100 != 11:
@@ -203,8 +218,10 @@ def links(problems):
 
 def render(result, problems, read, texts, translations, report_model):
     titles = {p["id"]: p["title"] for p in problems}
-    lines = [f"# Скарги користувачів: {result['app']}", ""]
-    period = (f"Період: останні {result['period_days']} днів, до {result['period_end']}. "
+    lines = [f"# Скарги користувачів: {result.get('title') or result['app']}", ""]
+    if result.get("markets"):
+        lines += [f"Відгуки з Google Play: {markets_text(result['markets'])}.", ""]
+    period = (f"Період: {period_text(result)}. "
               f"Відгуків за період: {result['reviews']}, негативних {percent(result['negative_share'])}")
     if result["trend"]:
         period += f" (у попередньому періоді {percent(result['trend']['previous_negative_share'])})"
@@ -264,6 +281,9 @@ def render(result, problems, read, texts, translations, report_model):
         "статистично значуща (z-тест для двох часток, рівень 0,05). Деталі до кожної проблеми модель виписала "
         f"з її найтиповіших скарг (до {READ_COMPLAINTS}), а в звіт потрапили лише ті, що згадані щонайменше в "
         f"{MIN_DETAIL_COMPLAINTS} з них.",
+        "",
+        "Відгуки збирались окремо для кожної мови. Google Play віддає їх насамперед за мовою, а не за країною, "
+        "тому, наприклад, англомовні відгуки можуть бути від користувачів з різних країн.",
     ]
     return "\n".join(lines) + "\n"
 

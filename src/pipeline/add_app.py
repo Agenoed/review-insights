@@ -9,6 +9,7 @@ Usage:
     python -m src.pipeline.add_app "https://play.google.com/store/apps/details?id=com.ubercab"
     python -m src.pipeline.add_app com.ubercab --name uber --country pl --langs pl en --per-lang 1000
     python -m src.pipeline.add_app com.ubercab --no-llm
+    python -m src.pipeline.add_app --remove uber
 """
 
 import argparse
@@ -32,6 +33,8 @@ from src.topics.app_topics import ADDED_DIR, OUT_DIR, ROOT, load_reviews
 REGISTRY_PATH = ADDED_DIR / "apps.json"
 RAW_ADDED_DIR = ADDED_DIR / "raw"
 LANGS = ["uk", "ru", "en", "pl", "es"]
+COUNTRY_LANGS = {"ua": ["uk", "ru", "en"], "pl": ["pl", "en"], "es": ["es", "en"], "mx": ["es", "en"],
+                 "us": ["en"], "gb": ["en"]}
 APP_ID = re.compile(r"^[A-Za-z][\w]*(\.[\w]+)+$")
 NAME = re.compile(r"^[a-z0-9_]{2,30}$")
 COUNTRY = re.compile(r"^[a-z]{2}$")
@@ -58,6 +61,9 @@ def default_name(title, app_id):
         word = re.sub(r"[^a-z0-9_]", "", app_id.split(".")[-1].lower())
     return word[:30]
 
+def clean_name(name):
+    name = re.sub(r"[\s-]+", "_", name.strip().lower().translate(TRANSLIT))
+    return re.sub(r"[^a-z0-9_]", "", name)
 
 def main_apps():
     names, ids = set(), {}
@@ -122,6 +128,17 @@ def merge_and_score(name, rows):
     df.to_csv(path, index=False, encoding="utf-8-sig")
     return df, len(new)
 
+def remove_app(name):
+    registry = read_registry()
+    if name not in registry:
+        raise ValueError(f"{name} немає серед доданих застосунків. Видаляти можна лише їх")
+    paths = [ADDED_DIR / f"{name}.csv", *RAW_ADDED_DIR.glob(f"{name}_[0-9]*.csv"),
+             *(OUT_DIR / f"{name}{end}" for end in ("_described.json", "_report.json", "_report.md"))]
+    for path in paths:
+        path.unlink(missing_ok=True)
+    info = registry.pop(name)
+    save_registry(registry)
+    return info
 
 def add_app(link, name=None, country="ua", langs=("uk", "ru", "en"), per_lang=1000, provider=None,
             use_llm=True, pause=1.0, log=print):
@@ -133,7 +150,7 @@ def add_app(link, name=None, country="ua", langs=("uk", "ru", "en"), per_lang=10
     except Exception as e:
         raise ValueError(f"Не вдалося знайти {app_id} у Google Play ({country}): {e}") from e
     title = info.get("title") or app_id
-    name = name or default_name(title, app_id)
+    name = clean_name(name) if name else default_name(title, app_id)
     check(app_id, name, country, langs)
     log(f"{title} ({app_id}), назва в системі: {name}")
 
@@ -165,6 +182,7 @@ def add_app(link, name=None, country="ua", langs=("uk", "ru", "en"), per_lang=10
         try:
             log("Шукаю теми скарг і проблеми")
             result = describe_app(name, provider=provider, df=load_reviews())
+            result["title"] = title
             OUT_DIR.mkdir(parents=True, exist_ok=True)
             (OUT_DIR / f"{name}_described.json").write_text(json.dumps(result, indent=2, ensure_ascii=False), encoding="utf-8")
             log(f"Знайдено проблем: {len(result['problems'])}. Пишу звіт")
@@ -185,7 +203,8 @@ def add_app(link, name=None, country="ua", langs=("uk", "ru", "en"), per_lang=10
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("link")
+    parser.add_argument("link", nargs="?")
+    parser.add_argument("--remove", metavar="NAME")
     parser.add_argument("--name")
     parser.add_argument("--country", default="ua")
     parser.add_argument("--langs", nargs="+", default=["uk", "ru", "en"])
@@ -193,6 +212,15 @@ def main():
     parser.add_argument("--provider", choices=["openrouter", "ollama"], default=None)
     parser.add_argument("--no-llm", action="store_true")
     args = parser.parse_args()
+    if args.remove:
+        try:
+            info = remove_app(args.remove)
+        except ValueError as e:
+            raise SystemExit(str(e))
+        print(f"Removed {args.remove} ({info['title']})")
+        return
+    if not args.link:
+        parser.error("give a Google Play link or --remove NAME")
     try:
         result = add_app(args.link, args.name, args.country, args.langs, args.per_lang, args.provider, not args.no_llm)
     except ValueError as e:

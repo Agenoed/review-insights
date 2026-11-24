@@ -33,6 +33,7 @@ ADDED_DIR = ROOT / "data" / "added"
 MIN_CHARS = 30
 MIN_COMPLAINTS = 150
 MIN_TOPICS = 4
+MIN_TREND_COMPLAINTS = 30
 GROUP = ["country", "request_lang"]
 
 
@@ -68,6 +69,13 @@ def collected_since(app_df, since):
 def share(part, total):
     return round(part / total, 3) if total else None
 
+def markets(df):
+    result = {}
+    if set(GROUP) <= set(df.columns):
+        for (country, lang), n in df.groupby(GROUP).size().sort_values(ascending=False).items():
+            if country and lang:
+                result.setdefault(str(country), {})[str(lang)] = int(n)
+    return result
 
 def find_app_topics(df, app, days=None, n_examples=25):
     app_df = df[df["app"] == app].copy()
@@ -101,7 +109,7 @@ def find_app_topics(df, app, days=None, n_examples=25):
     n_current = int(is_current.sum())
     n_trend_current = int((is_current & in_trend).sum())
     n_trend_previous = int((~is_current & in_trend).sum())
-    has_trend = n_trend_previous > 0 and n_trend_current > 0
+    has_trend = min(n_trend_previous, n_trend_current) >= MIN_TREND_COMPLAINTS
 
     topics = []
     for label, top in words.items():
@@ -148,6 +156,8 @@ def find_app_topics(df, app, days=None, n_examples=25):
         "app": app,
         "period_days": days,
         "period_end": end.date().isoformat(),
+        "first_day": current_all["at"].min().date().isoformat(),
+        "markets": markets(current_all),
         "reviews": len(current_all),
         "negative_share": share(int((current_all["pred"] == "negative").sum()), len(current_all)),
         "complaints": n_current,

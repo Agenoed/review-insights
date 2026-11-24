@@ -12,7 +12,7 @@ PROVIDERS = {
         "model_env": "OPENROUTER_MODEL",
     },
     "ollama": {
-        "base_url": "http://localhost:11434/v1",
+        "base_url": os.getenv("OLLAMA_BASE_URL", "http://localhost:11434/v1"),
         "key_env": None,
         "model_env": "OLLAMA_MODEL",
     },

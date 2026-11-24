@@ -1,0 +1,29 @@
+x-app: &app
+  build: .
+  image: review-insights
+  env_file: .env
+  environment:
+    SENTIMENT_MODEL: xlmr
+    OLLAMA_BASE_URL: http://host.docker.internal:11434/v1
+  extra_hosts:
+    - "host.docker.internal:host-gateway"
+  volumes:
+    - ./data:/app/data
+    - ./models:/app/models:ro
+    - hf-cache:/root/.cache/huggingface
+
+services:
+  dashboard:
+    <<: *app
+    command: python -m streamlit run src/dashboard/app.py --server.address=0.0.0.0 --server.port=8501 --server.headless=true --browser.gatherUsageStats=false
+    ports:
+      - "8501:8501"
+
+  api:
+    <<: *app
+    command: uvicorn src.api.main:app --host 0.0.0.0 --port 8000
+    ports:
+      - "8000:8000"
+
+volumes:
+  hf-cache:

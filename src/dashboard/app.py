@@ -29,7 +29,7 @@ MAX_LINES = 6
 st.set_page_config(page_title="Review Insights", layout="wide")
 
 
-@st.cache_data
+@st.cache_data(ttl=300)
 def load_data():
     return load_reviews()
 

@@ -1,0 +1,50 @@
+{
+  "complaints": 26517,
+  "languages": {
+    "uk": 14836,
+    "ru": 8085,
+    "en": 2066,
+    "pl": 787,
+    "es": 726,
+    "unknown": 17
+  },
+  "min_share": 0.1,
+  "methods": {
+    "bertopic": {
+      "topics": 57,
+      "multilingual_topics": 1.0,
+      "complaints_in_multilingual": 1.0,
+      "cross_script_topics": 0.404,
+      "one_language_topics": 0.0,
+      "main_share_weighted": 0.567,
+      "main_share_if_random": 0.56,
+      "top15_multilingual": 1.0,
+      "top15_cross_script": 0.267,
+      "same_topics_as_saved": true
+    },
+    "kmeans": {
+      "topics": 57,
+      "multilingual_topics": 1.0,
+      "complaints_in_multilingual": 1.0,
+      "cross_script_topics": 0.404,
+      "one_language_topics": 0.0,
+      "main_share_weighted": 0.567,
+      "main_share_if_random": 0.56,
+      "top15_multilingual": 1.0,
+      "top15_cross_script": 0.6,
+      "same_topics_as_saved": true
+    },
+    "lda": {
+      "topics": 57,
+      "multilingual_topics": 0.509,
+      "complaints_in_multilingual": 0.486,
+      "cross_script_topics": 0.088,
+      "one_language_topics": 0.421,
+      "main_share_weighted": 0.822,
+      "main_share_if_random": 0.56,
+      "top15_multilingual": 0.467,
+      "top15_cross_script": 0.067,
+      "same_topics_as_saved": true
+    }
+  }
+}

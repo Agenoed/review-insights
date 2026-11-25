@@ -38,6 +38,7 @@ COUNTRY_LANGS = {"ua": ["uk", "ru", "en"], "pl": ["pl", "en"], "es": ["es", "en"
 APP_ID = re.compile(r"^[A-Za-z][\w]*(\.[\w]+)+$")
 NAME = re.compile(r"^[a-z0-9_]{2,30}$")
 COUNTRY = re.compile(r"^[a-z]{2}$")
+TITLE_END = re.compile(r"\s[-–—]\s|[:|(,]")
 TRANSLIT = str.maketrans({
     "а": "a", "б": "b", "в": "v", "г": "h", "ґ": "g", "д": "d", "е": "e", "є": "ie", "ж": "zh", "з": "z",
     "и": "y", "і": "i", "ї": "i", "й": "i", "к": "k", "л": "l", "м": "m", "н": "n", "о": "o", "п": "p",
@@ -55,11 +56,12 @@ def parse_link(link):
 
 
 def default_name(title, app_id):
-    words = title.split()
-    word = re.sub(r"[^a-z0-9]", "", words[0].lower().translate(TRANSLIT)) if words else ""
-    if len(word) < 2:
-        word = re.sub(r"[^a-z0-9_]", "", app_id.split(".")[-1].lower())
-    return word[:30]
+    main = TITLE_END.split(title, maxsplit=1)[0]
+    words = [re.sub(r"[^a-z0-9]", "", w.lower().translate(TRANSLIT)) for w in main.split()]
+    name = "_".join(w for w in words if w)[:30].rstrip("_")
+    if len(name) < 2:
+        name = re.sub(r"[^a-z0-9_]", "", app_id.split(".")[-1].lower())[:30]
+    return name
 
 def clean_name(name):
     name = re.sub(r"[\s-]+", "_", name.strip().lower().translate(TRANSLIT))

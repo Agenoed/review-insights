@@ -62,6 +62,9 @@ def test_names():
     assert A.default_name("ПУМБ : Онлайн Банк", "com.fuib.android.spot.online") == "pumb"
     assert A.default_name("Дія", "ua.gov.diia.app") == "diia"
     assert A.default_name("★", "com.x.bestapp") == "bestapp"
+    assert A.default_name("Google Chrome: Fast & Secure", "com.android.chrome") == "google_chrome"
+    assert A.default_name("TikTok - Videos, Music & LIVE", "com.zhiliaoapp.musically") == "tiktok"
+    assert A.default_name("Subway Surfers", "com.kiloo.subwaysurf") == "subway_surfers"
     assert A.clean_name(" Uber App ") == "uber_app"
     assert A.clean_name("Укрзалізниця") == "ukrzaliznytsia"
 
